@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minibatch-apo"
+version = "0.1.0"
+description = "Reproduction code for minibatch effects in automatic prompt optimization"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=4.0.0",
+    "gepa>=0.1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib>=3.9.0",
+    "numpy>=2.0.0",
+    "pyright",
+    "pytest",
+    "ruff>=0.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+minibatch_apo = ["configs/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]

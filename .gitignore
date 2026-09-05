@@ -1,0 +1,15 @@
+__pycache__/
+*.py[codz]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.pyright/
+build/
+dist/
+*.egg-info/
+
+# Local data and model outputs may contain licensed benchmark content or model text.
+outputs/
+local_augmentation_pools/
+*.jsonl
+*.bin

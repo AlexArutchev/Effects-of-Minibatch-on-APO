@@ -1,0 +1,23 @@
+{
+  "task_lm": "openai/gpt-4.1-mini",
+  "reflection_lm": "openai/gpt-4.1",
+  "max_metric_calls": 1000,
+  "output_dir": "outputs/prompt_optimization_study",
+  "dataset": {
+    "name": "nlile/hendrycks-MATH-benchmark",
+    "levels": [4, 5],
+    "train_size": 100,
+    "val_size": 100,
+    "dataset_seed": 42
+  },
+  "experiment": {
+    "kind": "augmentation",
+    "augmentation_arms": ["baseline", "duplicate", "real", "real_m10", "paraphrase", "synthetic"],
+    "seeds": [0, 1, 2, 3, 4],
+    "base_train_size": 10,
+    "augmented_train_size": 100,
+    "base_minibatch_size": 10,
+    "augmented_minibatch_size": 50,
+    "pools_dir": "local_augmentation_pools"
+  }
+}
