@@ -1,74 +1,60 @@
-# Effects of Minibatch Size on Automatic Prompt Optimization
+# The Effects of Minibatches on Automatic Prompt Optimization
 
-Reproduction code for experiments on how a reflection minibatch affects the
-updates produced by automatic prompt optimization. The repository contains only
-the study code; it uses [GEPA](https://github.com/gepa-ai/gepa) as an installed
-dependency and does not vendor GEPA's framework source, documentation, or
-benchmarks. Released numerical summaries are under `results/`; raw experiment
-outputs remain local.
+Code and numerical results for the study of minibatch effects in GEPA on MATH
+levels 4–5, using GPT-4.1-mini as the task model and GPT-4.1 for reflection.
+GEPA is installed as a dependency; this repository contains the study protocols,
+analysis code, configurations, and results.
 
-## What is included
+## Key results
 
-- Configurable diversity, factorial, and augmentation protocols
-- Deterministic MATH split construction
-- Compact, privacy-preserving study logs
-- Aggregate, rule-specificity, leave-one-out utility, and oracle-pruning analyses
-- JSON templates for the configurations used in the study
+- On the same 100-problem training pool, increasing minibatch size from 10 to 50
+  raises the mean fraction of accepted updates that improve validation accuracy
+  from **63.5% to 90.0%**. This does not consistently improve final accuracy under
+  a fixed evaluation budget.
+- Added rules have lower source-batch specificity at the larger minibatch size,
+  including after controlling comparison size and reference-batch overlap.
+- Subject diversity, a larger training pool at fixed minibatch size, and repeated
+  copies of the same problems do not show the same transfer improvement.
+- Across **295 rules** in ten highest-scoring prompts, specificity has little
+  association with leave-one-out utility. Joint deletion of rules with negative
+  measured utility provides no average validation improvement.
 
-No API keys, model transcripts, generated pools, raw runs, or paper drafts are
-committed. Those remain local by design.
+The same minibatch supplies reflection feedback and candidate acceptance scores.
+The experiments do not separate those two mechanisms. The validation/Pareto set
+also influences search and is not an independent test set.
 
-## Revised paper results
+## Repository contents
 
-The revised analyses include final-best candidate selection, corrected rule
-ablations, specificity controls for comparison size and batch overlap, threshold
-checks, and acceptance-margin analyses. The selected ablation candidate now has
-the highest logged validation score, rather than being the first new record.
-
-- `results/corrected_ablations/` contains the corrected ten-run summaries and
-  per-run oracle results. Seven ablations were replaced and three were reused.
-- `results/review_audit/` contains the saved-data audit and specificity checks.
-- `analysis/review_audit/` contains the analysis scripts and regression tests.
-- `src/minibatch_apo/paper/` contains the original study helpers needed by those
-  scripts. The configurable runners below remain the entry points for new runs.
-- `figures/oracle_pruning.pdf` is the updated pruning figure.
-
-Rebuild that figure using only the released numerical results:
-
-```bash
-uv sync --extra dev --extra analysis
-uv run python analysis/review_audit/rebuild_oracle.py
-uv run python -m pytest tests analysis/review_audit
-```
-
-Most other post-hoc scripts require locally saved `research_log.jsonl` files from
-the original protocols, including prompt text where needed. Those inputs and
-embedding caches are not distributed. Install the `embeddings` extra for the
-Qwen embedding analyses. Paid ablation reruns require a locally configured API
-key and an explicit `--execute` argument; the default is a dry run.
+- `src/minibatch_apo/`: configurable experiment runners and analysis tools.
+- `src/minibatch_apo/paper/`: helpers for the paper's saved-log analyses.
+- `analysis/paper/`: specificity controls, acceptance-margin analysis, rule
+  evaluation, plotting, and tests.
+- `results/rule_ablations/`: numerical rule-utility and oracle-pruning results.
+- `results/specificity_checks/`: specificity and accepted-update summaries.
+- `figures/`: paper figures generated from the numerical results.
 
 ## Setup
 
 ```bash
-uv sync --extra dev
+uv sync --extra dev --extra analysis
 export OPENAI_API_KEY=...
 ```
 
-The defaults use LiteLLM model strings. Change the model names, rollout budget,
-dataset sizes, seeds, output path, and experiment grid in the JSON config files.
+Model names, budgets, dataset sizes, seeds, and experiment grids are configurable
+in `src/minibatch_apo/configs/`. Embedding analyses additionally require
+`uv sync --extra dev --extra analysis --extra embeddings`.
 
-## Run an experiment
+## Run experiments
 
-Inspect the diversity grid before incurring model costs:
+Inspect the diversity grid without making model calls:
 
 ```bash
 uv run python -m minibatch_apo.run_diversity \
   src/minibatch_apo/configs/diversity.json --all --dry-run
 ```
 
-Remove `--dry-run` to execute the conditions. Use `--smoke-test` for a small
-run, or `--condition d4_s0` to run a named condition. The factorial and
-augmentation protocols work the same way:
+Remove `--dry-run` to execute it. Use `--smoke-test` for a small run or
+`--condition d4_s0` for one condition. Other protocols run with:
 
 ```bash
 uv run python -m minibatch_apo.run_factorial \
@@ -78,26 +64,28 @@ uv run python -m minibatch_apo.run_augmentation \
   src/minibatch_apo/configs/augmentation.json --all
 ```
 
-The augmentation runner creates baseline, duplicate, and real-data controls
-itself. For paraphrase and synthetic arms, provide local JSON pools as described
-in the augmentation config; this avoids hidden model calls while training.
+The augmentation runner constructs baseline, duplicate, and real-data conditions.
+Paraphrase and synthetic conditions use local pools specified in the configuration.
 
 ## Analyze results
 
 ```bash
 uv run python -m minibatch_apo.analyze outputs/prompt_optimization_study/factorial
+uv run python analysis/paper/rebuild_oracle.py
 ```
 
-Logs contain aggregate metrics only by default. Prompt text, reflection examples,
-and raw model outputs are stored only if the configuration explicitly enables
-them and acknowledges the privacy risk. That opt-in is needed for the
-rule-specificity and leave-one-out analyses.
+The figure command uses released numerical results and makes no model calls.
+The paper's embedding analyses use Qwen3-Embedding-4B and locally saved prompt
+and reflection texts. Logs omit those texts by default; enable the corresponding
+logging options when collecting data for rule-level analysis. Raw transcripts,
+benchmark pools, embedding caches, and credentials are not included.
 
-## Development
+See `analysis/paper/README.md` for the analysis scripts. The resumable rule
+evaluator selects each run's highest-scoring candidate and requires `--execute`
+for paid evaluations; otherwise it prints the evaluation plan.
+
+## Tests
 
 ```bash
-uv run pytest
-uv run ruff check src tests
-uv run ruff format --check src tests
-uv run pyright src
+uv run python -m pytest tests analysis/paper
 ```

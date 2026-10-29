@@ -1,4 +1,4 @@
-"""Summarize corrected ablations, using unchanged data for the three reused runs."""
+"""Summarize rule ablations of the highest-scoring candidate from each run."""
 
 import contextlib
 import csv
@@ -12,7 +12,7 @@ from scipy import stats
 from minibatch_apo.paper import ablate_correlate, analyze_run
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "outputs/corrected_ablations"
+OUT = ROOT / "outputs/rule_ablations"
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     missing = [item["run"] for item in plan if not (OUT / item["run"] / "rule_utility.json").exists()]
     if missing:
         raise RuntimeError("Incomplete runs: " + ", ".join(missing))
-    cache = np.load(ROOT / "outputs/review_audit/embeddings.npz")
+    cache = np.load(ROOT / "outputs/specificity_checks/embeddings.npz")
     lookup = dict(zip(cache["texts"].tolist(), cache["vectors"].tolist(), strict=True))
 
     def cached_only(texts, model_name):
@@ -34,7 +34,7 @@ def main():
         for item in [item for item in plan if item["condition"] == condition]:
             folder = OUT / item["run"]
             data = json.loads((folder / "rule_utility.json").read_text())
-            if item["redo"]:
+            if "baseline_scores" in data:
                 assert data["prompt_sha256"] == item["prompt_sha256"]
                 assert len(data["baseline_scores"]) == data["n_val"] == 100
                 assert all(len(rule["scores_without"]) == 100 for rule in data["rules"])
@@ -56,7 +56,6 @@ def main():
             correlation = stats.spearmanr(*zip(*pairs, strict=True)) if len(pairs) > 2 else None
             row = {
                 "seed": item["seed"],
-                "reused": not item["redo"],
                 "iteration": item["iteration"],
                 "n_rules": len(texts),
                 "n_matched": len(pairs),

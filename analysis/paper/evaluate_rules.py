@@ -1,4 +1,4 @@
-"""Resume corrected final-best ablations; keep original results untouched.
+"""Evaluate highest-scoring prompts with resumable leave-one-out ablations.
 
 Dry run is the default. --execute enables paid GPT-4.1-mini calls.
 """
@@ -16,8 +16,8 @@ from minibatch_apo.paper.ablate_rules import _assemble, load_best_prompt, split_
 from minibatch_apo.paper.sweep_diversity import TASK_LM, build_datasets
 
 ROOT = Path(__file__).resolve().parents[2]
-OUTPUT = ROOT / "outputs/corrected_ablations"
-REDO = {"real100_m10": {0, 2, 3, 4}, "real100": {0, 3, 4}}
+OUTPUT = ROOT / "outputs/rule_ablations"
+CONDITIONS = ["real100_m10", "real100"]
 
 
 def digest(value):
@@ -53,7 +53,7 @@ def checkpoint_rows(path):
 
 def build_plan(valset):
     plan = []
-    for condition in REDO:
+    for condition in CONDITIONS:
         for seed in range(5):
             source = ROOT / f"runs/augmentation_sweep/{condition}_s{seed}"
             records = [json.loads(line) for line in (source / "research_log.jsonl").read_text().splitlines()]
@@ -61,19 +61,23 @@ def build_plan(valset):
             best = max(accepted, key=lambda r: r["valset_score"])
             prompt = load_best_prompt(str(source))
             preamble, blocks = split_rule_blocks(prompt)
-            saved = json.loads((source / "rule_utility.json").read_text())
+            saved_path = source / "rule_utility.json"
+            saved = json.loads(saved_path.read_text()) if saved_path.exists() else {"rules": []}
             rule_texts = [" ".join(line.strip() for line in block if line.strip()) for block in blocks]
-            same = rule_texts == [r["text"] for r in saved["rules"]]
-            redo = seed in REDO[condition]
-            if redo == same:
-                raise ValueError(f"Audit/selection mismatch for {condition}_s{seed}")
+            same = (
+                rule_texts == [r["text"] for r in saved["rules"]]
+                and saved.get("prompt_sha256") == digest(prompt)
+                and saved.get("validation_sha256") == digest(valset)
+                and saved.get("n_val") == len(valset)
+            )
+            needs_evaluation = not same
             plan.append(
                 {
                     "condition": condition,
                     "seed": seed,
                     "run": f"{condition}_s{seed}",
                     "source": str(source),
-                    "redo": redo,
+                    "needs_evaluation": needs_evaluation,
                     "iteration": best["iteration"],
                     "candidate_idx": best["new_candidate_idx"],
                     "logged_score": best["valset_score"],
@@ -82,8 +86,8 @@ def build_plan(valset):
                     "n_rules": len(blocks),
                     "model": TASK_LM,
                     "validation_sha256": digest(valset),
-                    "loo_calls": (len(blocks) + 1) * len(valset) if redo else 0,
-                    "protocol": "Original DefaultAdapter messages, substring evaluator, unset temperature/max_tokens; outputs stripped.",
+                    "loo_calls": (len(blocks) + 1) * len(valset) if needs_evaluation else 0,
+                    "protocol": "DefaultAdapter messages, substring evaluator, unset temperature/max_tokens; outputs stripped.",
                 }
             )
     return plan
@@ -176,15 +180,15 @@ def run_one(item, valset, budget, workers, oracle):
             raise ValueError("Manifest changed; refusing to mix prompt/protocol outcomes")
     else:
         atomic_json(manifest, item)
-    if not item["redo"]:
+    if not item["needs_evaluation"]:
         for name in ["rule_utility.json", "oracle_prune.json"]:
             source = Path(item["source"]) / name
             destination = folder / name
             if destination.exists() and destination.read_bytes() != source.read_bytes():
-                raise ValueError("Reused result changed")
+                raise ValueError("Cached result changed")
             if not destination.exists():
                 destination.write_bytes(source.read_bytes())
-        print(f"REUSED {item['run']}", flush=True)
+        print(f"CACHED {item['run']}", flush=True)
         return
     checkpoint = folder / "outcomes.jsonl"
     preamble, blocks = split_rule_blocks(item["prompt"])
@@ -262,11 +266,12 @@ def main():
     atomic_json(OUTPUT / "validation.json", valset)
     for item in plan:
         print(
-            f"{'REDO' if item['redo'] else 'REUSE'} {item['run']}: iteration={item['iteration']}, rules={item['n_rules']}, calls={item['loo_calls']}",
+            f"{'EVALUATE' if item['needs_evaluation'] else 'CACHED'} {item['run']}: iteration={item['iteration']}, rules={item['n_rules']}, calls={item['loo_calls']}",
             flush=True,
         )
+    oracle_calls = sum(item["needs_evaluation"] for item in plan) * len(valset) if args.oracle else 0
     print(
-        f"Total LOO calls: {sum(i['loo_calls'] for i in plan)}; oracle adds at most 700; cost cap ${args.cost_cap:.2f}",
+        f"Total LOO calls: {sum(i['loo_calls'] for i in plan)}; oracle adds at most {oracle_calls}; cost cap ${args.cost_cap:.2f}",
         flush=True,
     )
     if not args.execute:
@@ -286,8 +291,8 @@ def main():
         {
             "estimated_cost_usd": budget["spent"],
             "elapsed_seconds_this_invocation": time.time() - started,
-            "reused_runs": 3,
-            "rerun_runs": 7,
+            "cached_runs": sum(not item["needs_evaluation"] for item in plan),
+            "evaluated_runs": sum(item["needs_evaluation"] for item in plan),
             "oracle": args.oracle,
         },
     )

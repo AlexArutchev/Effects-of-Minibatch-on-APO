@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 import pytest
 
-from analysis.review_audit.run_audit import expected_max, paired_summary
+from analysis.paper.analyze_specificity import expected_max, paired_summary
 
 
 @pytest.mark.parametrize("k", [1, 2, 3, 5])

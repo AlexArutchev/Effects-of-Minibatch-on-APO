@@ -10,12 +10,11 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-from minibatch_apo.paper.ablate_rules import split_rule_blocks
 from minibatch_apo.paper.analyze_run import extract_rules_from_text
 from minibatch_apo.paper.analyze_sweep import compute_run_stats
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "outputs/review_audit"
+OUT = ROOT / "outputs/specificity_checks"
 CONDITIONS = ["real100_m10", "real100"]
 
 
@@ -74,8 +73,8 @@ def load_runs():
     return runs
 
 
-def audit(runs):
-    rows, margins, candidates = [], [], []
+def summarize_runs(runs):
+    rows, margins = [], []
     for run in runs:
         path, acc = run["path"], run["accepted"]
         row = dict(condition=run["condition"], **run["stats"])
@@ -88,12 +87,14 @@ def audit(runs):
         row["original_specificity_defined"] = bool(match)
         row["n_transferred"] = sum(r["valset_score"] > r["parent_score"] for r in acc)
         rows.append(row)
-        legacy = read_json(path / "run_log.json")
+        evaluation_log = read_json(path / "run_log.json")
         for r in acc:
-            legacy_match = [entry for entry in legacy if entry.get("new_program_idx") == r["new_candidate_idx"]]
-            if len(legacy_match) != 1:
-                raise ValueError(f"Ambiguous legacy score match: {path}, {r['iteration']}")
-            entry = legacy_match[0]
+            score_matches = [
+                entry for entry in evaluation_log if entry.get("new_program_idx") == r["new_candidate_idx"]
+            ]
+            if len(score_matches) != 1:
+                raise ValueError(f"Ambiguous score match: {path}, {r['iteration']}")
+            entry = score_matches[0]
             before = sum(entry["subsample_scores"])
             after = sum(entry["new_subsample_scores"])
             if after <= before:
@@ -110,36 +111,8 @@ def audit(runs):
                     "validation_delta": r["valset_score"] - r["parent_score"],
                 }
             )
-        upath = path / "rule_utility.json"
-        if not upath.exists():
-            continue
-        utility = read_json(upath)
-        saved = [r["text"] for r in utility["rules"]]
-        matches = []
-        for r in acc:
-            _, blocks = split_rule_blocks(r["new_texts"]["system_prompt"])
-            texts = [" ".join(line.strip() for line in block if line.strip()) for block in blocks]
-            if texts == saved:
-                matches.append(r)
-        first = next((r for r in acc if r.get("is_best")), None)
-        best = max(acc, key=lambda r: r["valset_score"])
-        candidates.append(
-            {
-                "condition": run["condition"],
-                "seed": run["seed"],
-                "matched_iterations": ";".join(str(r["iteration"]) for r in matches),
-                "matched_logged_scores": ";".join(str(r["valset_score"]) for r in matches),
-                "first_flagged_iteration": first["iteration"] if first else None,
-                "final_best_iteration": best["iteration"],
-                "final_best_score": best["valset_score"],
-                "evaluated_final_best": any(r["iteration"] == best["iteration"] for r in matches),
-                "ablation_base_accuracy": utility["base_acc"],
-                "n_rules": len(saved),
-            }
-        )
     write_csv("run_statistics.csv", rows)
     write_csv("accepted_margins.csv", margins)
-    write_csv("ablation_candidate_audit.csv", candidates)
     summary = {}
     for metric in ["generalization_rate", "improvement", "acceptance_rate", "n_accepted", "n_proposals"]:
         values = [[r[metric] for r in rows if r["condition"] == c] for c in CONDITIONS]
@@ -171,7 +144,7 @@ def audit(runs):
                 "rho": float(test.statistic),
                 "p": float(test.pvalue),
             }
-    (OUT / "audit_summary.json").write_text(json.dumps(summary, indent=2))
+    (OUT / "run_summary.json").write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary, indent=2), flush=True)
 
 
@@ -354,7 +327,7 @@ def main():
     args = p.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     runs = load_runs()
-    audit(runs)
+    summarize_runs(runs)
     if args.embeddings:
         specificity(runs)
 

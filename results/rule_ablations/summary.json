@@ -3,7 +3,6 @@
     "seeds": [
       {
         "seed": 0,
-        "reused": false,
         "iteration": 11,
         "n_rules": 48,
         "n_matched": 48,
@@ -15,7 +14,6 @@
       },
       {
         "seed": 1,
-        "reused": true,
         "iteration": 1,
         "n_rules": 9,
         "n_matched": 9,
@@ -27,7 +25,6 @@
       },
       {
         "seed": 2,
-        "reused": false,
         "iteration": 9,
         "n_rules": 58,
         "n_matched": 58,
@@ -39,7 +36,6 @@
       },
       {
         "seed": 3,
-        "reused": false,
         "iteration": 12,
         "n_rules": 33,
         "n_matched": 32,
@@ -51,7 +47,6 @@
       },
       {
         "seed": 4,
-        "reused": false,
         "iteration": 19,
         "n_rules": 3,
         "n_matched": 3,
@@ -72,7 +67,6 @@
     "seeds": [
       {
         "seed": 0,
-        "reused": false,
         "iteration": 3,
         "n_rules": 20,
         "n_matched": 20,
@@ -84,7 +78,6 @@
       },
       {
         "seed": 1,
-        "reused": true,
         "iteration": 2,
         "n_rules": 24,
         "n_matched": 24,
@@ -96,7 +89,6 @@
       },
       {
         "seed": 2,
-        "reused": true,
         "iteration": 1,
         "n_rules": 5,
         "n_matched": 5,
@@ -108,7 +100,6 @@
       },
       {
         "seed": 3,
-        "reused": false,
         "iteration": 5,
         "n_rules": 57,
         "n_matched": 55,
@@ -120,7 +111,6 @@
       },
       {
         "seed": 4,
-        "reused": false,
         "iteration": 6,
         "n_rules": 38,
         "n_matched": 38,

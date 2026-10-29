@@ -1,4 +1,4 @@
-"""Offline training-minus-validation specificity proxy for corrected prompts."""
+"""Compute training-minus-validation specificity for selected prompts."""
 
 import csv
 import json
@@ -11,8 +11,8 @@ from minibatch_apo.paper import analyze_run
 from minibatch_apo.paper.sweep_diversity import build_datasets
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "outputs/corrected_ablations"
-cache = np.load(ROOT / "outputs/review_audit/embeddings.npz")
+OUT = ROOT / "outputs/rule_ablations"
+cache = np.load(ROOT / "outputs/specificity_checks/embeddings.npz")
 lookup = dict(zip(cache["texts"].tolist(), cache["vectors"].tolist(), strict=True))
 extra = OUT / "proxy_embeddings.npz"
 if extra.exists():

@@ -151,12 +151,12 @@ def copy_existing_results_figures(project_root: Path, output_dir: Path) -> list[
 
 
 def build_oracle_pruning_figure(project_root: Path, output_dir: Path, ablation_root: Path | None = None) -> list[Path]:
-    """Plot corrected ablation results, requiring all five seeds per condition."""
+    """Plot ablation results, requiring all five seeds per condition."""
     import matplotlib.pyplot as plt
     import numpy as np
 
     if ablation_root is None:
-        ablation_root = project_root / "outputs/corrected_ablations"
+        ablation_root = project_root / "outputs/rule_ablations"
     rows: dict[str, list[dict[str, float]]] = {"real100": [], "real100_m10": []}
     for condition in rows:
         for seed in range(5):
@@ -210,7 +210,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=PAPER_FIGURE_DIR)
     parser.add_argument("--sweep-root", type=Path, default=Path("runs/augmentation_sweep"))
-    parser.add_argument("--ablation-root", type=Path, default=Path("outputs/corrected_ablations"))
+    parser.add_argument("--ablation-root", type=Path, default=Path("outputs/rule_ablations"))
     args = parser.parse_args()
 
     outputs = build_methodology_pipeline(args.output_dir)

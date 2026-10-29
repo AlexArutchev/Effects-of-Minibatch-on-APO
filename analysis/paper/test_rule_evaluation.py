@@ -1,4 +1,4 @@
-"""Regression checks for final-best selection and resumable corrected ablations."""
+"""Checks for highest-score selection and resumable rule evaluations."""
 
 import json
 
@@ -7,7 +7,7 @@ import pytest
 from minibatch_apo.paper.ablate_rules import load_best_prompt
 
 
-def test_selects_highest_score_not_first_record(tmp_path):
+def test_selects_highest_scoring_candidate(tmp_path):
     records = [
         {"status": "accepted", "is_best": True, "valset_score": 0.6, "new_texts": {"system_prompt": "early"}},
         {"status": "accepted", "is_best": True, "valset_score": 0.8, "new_texts": {"system_prompt": "best"}},
@@ -33,7 +33,7 @@ def test_no_accepted_candidate_fails(tmp_path):
 
 
 def test_checkpoint_resume_avoids_repeating_paid_calls(tmp_path):
-    from analysis.review_audit.rerun_ablations import evaluate
+    from analysis.paper.evaluate_rules import evaluate
 
     calls = []
 
@@ -51,7 +51,7 @@ def test_checkpoint_resume_avoids_repeating_paid_calls(tmp_path):
 
 
 def test_budget_guard_prevents_calls(tmp_path):
-    from analysis.review_audit.rerun_ablations import evaluate
+    from analysis.paper.evaluate_rules import evaluate
 
     def forbidden_api(*args):
         pytest.fail("API called despite exhausted budget")
@@ -69,10 +69,41 @@ def test_budget_guard_prevents_calls(tmp_path):
 
 
 def test_duplicate_checkpoint_is_rejected(tmp_path):
-    from analysis.review_audit.rerun_ablations import checkpoint_rows
+    from analysis.paper.evaluate_rules import checkpoint_rows
 
     row = {"evaluation": "baseline", "problem_idx": 0, "score": 1, "estimated_cost_usd": 0.001}
     checkpoint = tmp_path / "outcomes.jsonl"
     checkpoint.write_text(json.dumps(row) + "\n" + json.dumps(row) + "\n")
     with pytest.raises(ValueError, match="Duplicate"):
         checkpoint_rows(checkpoint)
+
+
+def test_plan_checks_prompt_and_validation_before_using_cache(tmp_path, monkeypatch):
+    from analysis.paper import evaluate_rules
+
+    monkeypatch.setattr(evaluate_rules, "ROOT", tmp_path)
+    monkeypatch.setattr(evaluate_rules, "CONDITIONS", ["real100"])
+    validation = [{"input": "question", "answer": "### 1", "additional_context": {}}]
+    prompt = "Solve carefully.\n- Check the answer."
+    for seed in range(5):
+        folder = tmp_path / f"runs/augmentation_sweep/real100_s{seed}"
+        folder.mkdir(parents=True)
+        record = {
+            "status": "accepted",
+            "valset_score": 0.8,
+            "iteration": 2,
+            "new_candidate_idx": 1,
+            "new_texts": {"system_prompt": prompt},
+        }
+        (folder / "research_log.jsonl").write_text(json.dumps(record) + "\n")
+        if seed in [1, 2]:
+            cached = {
+                "rules": [{"text": "- Check the answer."}],
+                "n_val": 1,
+                "validation_sha256": evaluate_rules.digest(validation),
+                "prompt_sha256": evaluate_rules.digest(prompt if seed == 1 else "Different preamble."),
+            }
+            (folder / "rule_utility.json").write_text(json.dumps(cached))
+    plan = evaluate_rules.build_plan(validation)
+    assert len(plan) == 5
+    assert [item["needs_evaluation"] for item in plan] == [True, False, True, True, True]

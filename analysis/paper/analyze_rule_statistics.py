@@ -1,4 +1,4 @@
-"""Recompute supporting rule statistics using only saved corrected outcomes."""
+"""Compute supporting rule statistics from saved evaluation outcomes."""
 
 import csv
 import json
@@ -10,7 +10,7 @@ from scipy import stats
 from minibatch_apo.paper.analyze_specificity_entropy import normalized_entropy
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "outputs/corrected_ablations"
+OUT = ROOT / "outputs/rule_ablations"
 rows = list(csv.DictReader((OUT / "rule_pairs.csv").open()))
 summary = {}
 for condition in ["real100_m10", "real100"]:

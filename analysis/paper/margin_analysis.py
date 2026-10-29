@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-OUT = Path(__file__).resolve().parents[2] / "outputs/review_audit"
+OUT = Path(__file__).resolve().parents[2] / "outputs/specificity_checks"
 rng = np.random.default_rng(20261028)
 rows = list(csv.DictReader((OUT / "accepted_margins.csv").open()))
 results = {}
