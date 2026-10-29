@@ -105,3 +105,15 @@ def test_rule_utility_helpers_preserve_the_preamble_and_summarize_negative_rules
         "negative_rule_count": 2,
         "sum_negative_utility": 0.4,
     }
+
+
+def test_rule_evaluation_selects_highest_scoring_prompt(tmp_path: Path) -> None:
+    from minibatch_apo.rule_evaluation import load_best_prompt
+
+    records = [
+        {"status": "accepted", "is_best": True, "valset_score": 0.6, "new_prompt": {"system_prompt": "early"}},
+        {"status": "accepted", "is_best": True, "valset_score": 0.8, "new_prompt": {"system_prompt": "best"}},
+        {"status": "accepted", "is_best": False, "valset_score": 0.7, "new_prompt": {"system_prompt": "last"}},
+    ]
+    (tmp_path / "study_log.jsonl").write_text("\n".join(json.dumps(record) for record in records))
+    assert load_best_prompt(tmp_path) == "best"

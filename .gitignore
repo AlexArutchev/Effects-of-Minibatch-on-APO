@@ -13,3 +13,7 @@ outputs/
 local_augmentation_pools/
 *.jsonl
 *.bin
+.env
+.env.*
+*.npz
+runs/

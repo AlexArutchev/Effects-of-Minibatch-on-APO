@@ -1,0 +1,35 @@
+{
+  "real100_m10": {
+    "within_prompt_spec_sd": 0.05900878250274379,
+    "between_prompt_spec_sd": 0.024244179948942922,
+    "normalized_entropy": 0.5978551812246444,
+    "matched_utility_mean": 0.013133333333333337,
+    "matched_utility_sd": 0.05345573454322329,
+    "general_n": 52,
+    "general_utility_mean": 0.02000000000000001,
+    "specific_utility_mean": 0.009489795918367348,
+    "oracle_mean": -0.0020000000000000018,
+    "oracle_sd_sample": 0.017888543819998333,
+    "summed_negative_mean": 0.24800000000000016
+  },
+  "real100": {
+    "within_prompt_spec_sd": 0.03997785436939761,
+    "between_prompt_spec_sd": 0.01845722220079058,
+    "normalized_entropy": 0.5305749116141204,
+    "matched_utility_mean": 0.02619718309859156,
+    "matched_utility_sd": 0.0796447428427489,
+    "general_n": 59,
+    "general_utility_mean": 0.02389830508474578,
+    "specific_utility_mean": 0.02783132530120482,
+    "oracle_mean": -0.004000000000000026,
+    "oracle_sd_sample": 0.055497747702046456,
+    "summed_negative_mean": 0.248
+  },
+  "pooled_mirror": {
+    "general_n": 111,
+    "general_mean": 0.022072072072072083,
+    "general_t_p_naive": 0.0002947625215535332,
+    "general_minus_specific": 0.004171519585884232,
+    "welch_p_naive": 0.5994522552954276
+  }
+}

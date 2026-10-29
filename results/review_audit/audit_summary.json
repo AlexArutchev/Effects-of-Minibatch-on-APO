@@ -1,0 +1,100 @@
+{
+  "generalization_rate": {
+    "n": 10,
+    "mean_m10": 0.6351190476190476,
+    "mean_m50": 0.9,
+    "difference": 0.2648809523809524,
+    "ci95": [
+      0.0333970417967647,
+      0.49636486296514004
+    ],
+    "paired_t_p": 0.029284143781041664,
+    "exact_sign_flip_p": 0.0390625
+  },
+  "improvement": {
+    "n": 10,
+    "mean_m10": 0.335,
+    "mean_m50": 0.28900000000000003,
+    "difference": -0.04600000000000001,
+    "ci95": [
+      -0.1066250616589638,
+      0.01462506165896376
+    ],
+    "paired_t_p": 0.1202145116547469,
+    "exact_sign_flip_p": 0.12890625
+  },
+  "acceptance_rate": {
+    "n": 10,
+    "mean_m10": 0.4911010558069381,
+    "mean_m50": 0.40714285714285714,
+    "difference": -0.08395819866408102,
+    "ci95": [
+      -0.2287680490391979,
+      0.06085165171103585
+    ],
+    "paired_t_p": 0.22213860227586277,
+    "exact_sign_flip_p": 0.224609375
+  },
+  "n_accepted": {
+    "n": 10,
+    "mean_m10": 6.6,
+    "mean_m50": 2.6,
+    "difference": -4.0,
+    "ci95": [
+      -4.584086467882516,
+      -3.4159135321174836
+    ],
+    "paired_t_p": 8.521134906511708e-08,
+    "exact_sign_flip_p": 0.001953125
+  },
+  "n_proposals": {
+    "n": 10,
+    "mean_m10": 14.4,
+    "mean_m50": 6.5,
+    "difference": -7.9,
+    "ci95": [
+      -10.29522933829291,
+      -5.5047706617070915
+    ],
+    "paired_t_p": 3.84688904344374e-05,
+    "exact_sign_flip_p": 0.001953125
+  },
+  "exclusion_groups": [
+    {
+      "condition": "real100_m10",
+      "defined": true,
+      "n": 10,
+      "generalization_rate": 0.6351190476190476,
+      "improvement": 0.335,
+      "n_accepted": 6.6
+    },
+    {
+      "condition": "real100",
+      "defined": false,
+      "n": 5,
+      "generalization_rate": 1.0,
+      "improvement": 0.312,
+      "n_accepted": 2.4
+    },
+    {
+      "condition": "real100",
+      "defined": true,
+      "n": 5,
+      "generalization_rate": 0.7999999999999999,
+      "improvement": 0.266,
+      "n_accepted": 2.8
+    }
+  ],
+  "margin_available": 92,
+  "accepted_total": 92,
+  "margin_correlation_real100_m10": {
+    "n": 66,
+    "rho": 0.5397758269776755,
+    "p": 2.9095287648436465e-06
+  },
+  "margin_correlation_real100": {
+    "n": 26,
+    "rho": 0.8781905755822434,
+    "p": 3.731968158120212e-09
+  }
+}

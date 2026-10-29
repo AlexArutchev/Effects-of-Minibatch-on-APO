@@ -1,0 +1,140 @@
+{
+  "real100_m10": {
+    "seeds": [
+      {
+        "seed": 0,
+        "reused": false,
+        "iteration": 11,
+        "n_rules": 48,
+        "n_matched": 48,
+        "base_acc": 0.75,
+        "rho": 0.1427226475313469,
+        "harmful_fraction": 0.2916666666666667,
+        "oracle_gain": -0.010000000000000009,
+        "summed_negative_estimate": 0.3800000000000001
+      },
+      {
+        "seed": 1,
+        "reused": true,
+        "iteration": 1,
+        "n_rules": 9,
+        "n_matched": 9,
+        "base_acc": 0.69,
+        "rho": 0.42858656147616914,
+        "harmful_fraction": 0.5555555555555556,
+        "oracle_gain": 0.010000000000000009,
+        "summed_negative_estimate": 0.17000000000000015
+      },
+      {
+        "seed": 2,
+        "reused": false,
+        "iteration": 9,
+        "n_rules": 58,
+        "n_matched": 58,
+        "base_acc": 0.73,
+        "rho": 0.1461632032234912,
+        "harmful_fraction": 0.46551724137931033,
+        "oracle_gain": 0.010000000000000009,
+        "summed_negative_estimate": 0.6300000000000006
+      },
+      {
+        "seed": 3,
+        "reused": false,
+        "iteration": 12,
+        "n_rules": 33,
+        "n_matched": 32,
+        "base_acc": 0.77,
+        "rho": 0.08997974368838782,
+        "harmful_fraction": 0.09090909090909091,
+        "oracle_gain": -0.030000000000000027,
+        "summed_negative_estimate": 0.040000000000000036
+      },
+      {
+        "seed": 4,
+        "reused": false,
+        "iteration": 19,
+        "n_rules": 3,
+        "n_matched": 3,
+        "base_acc": 0.64,
+        "rho": -1.0,
+        "harmful_fraction": 0.3333333333333333,
+        "oracle_gain": 0.010000000000000009,
+        "summed_negative_estimate": 0.020000000000000018
+      }
+    ],
+    "n_paired_rules": 150,
+    "pooled_rho": 0.009145832281086378,
+    "pooled_p_naive": 0.9115541846563704,
+    "harmful_fraction_mean": 0.3473963775687913,
+    "note": "Pooled rule p-values do not account for dependence within prompts."
+  },
+  "real100": {
+    "seeds": [
+      {
+        "seed": 0,
+        "reused": false,
+        "iteration": 3,
+        "n_rules": 20,
+        "n_matched": 20,
+        "base_acc": 0.62,
+        "rho": 0.02903353016775216,
+        "harmful_fraction": 0.25,
+        "oracle_gain": 0.0,
+        "summed_negative_estimate": 0.07000000000000006
+      },
+      {
+        "seed": 1,
+        "reused": true,
+        "iteration": 2,
+        "n_rules": 24,
+        "n_matched": 24,
+        "base_acc": 0.74,
+        "rho": 0.1184827581555228,
+        "harmful_fraction": 0.5833333333333334,
+        "oracle_gain": 0.050000000000000044,
+        "summed_negative_estimate": 0.4600000000000004
+      },
+      {
+        "seed": 2,
+        "reused": true,
+        "iteration": 1,
+        "n_rules": 5,
+        "n_matched": 5,
+        "base_acc": 0.68,
+        "rho": 0.22360679774997894,
+        "harmful_fraction": 0.6,
+        "oracle_gain": 0.04999999999999993,
+        "summed_negative_estimate": 0.11999999999999977
+      },
+      {
+        "seed": 3,
+        "reused": false,
+        "iteration": 5,
+        "n_rules": 57,
+        "n_matched": 55,
+        "base_acc": 0.66,
+        "rho": -0.1108943489893285,
+        "harmful_fraction": 0.40350877192982454,
+        "oracle_gain": -0.07000000000000006,
+        "summed_negative_estimate": 0.5399999999999996
+      },
+      {
+        "seed": 4,
+        "reused": false,
+        "iteration": 6,
+        "n_rules": 38,
+        "n_matched": 38,
+        "base_acc": 0.63,
+        "rho": 0.2986892132822513,
+        "harmful_fraction": 0.05263157894736842,
+        "oracle_gain": -0.050000000000000044,
+        "summed_negative_estimate": 0.050000000000000044
+      }
+    ],
+    "n_paired_rules": 142,
+    "pooled_rho": -0.05177452995436401,
+    "pooled_p_naive": 0.5405892362440401,
+    "harmful_fraction_mean": 0.3778947368421052,
+    "note": "Pooled rule p-values do not account for dependence within prompts."
+  }
+}

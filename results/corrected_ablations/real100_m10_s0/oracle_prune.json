@@ -1,0 +1,10 @@
+{
+  "run": "real100_m10_s0",
+  "condition": "real100_m10",
+  "base_acc": 0.75,
+  "n_rules": 48,
+  "n_dropped": 14,
+  "oracle_acc": 0.74,
+  "oracle_gain": -0.010000000000000009,
+  "sum_neg_estimate": 0.3800000000000001
+}

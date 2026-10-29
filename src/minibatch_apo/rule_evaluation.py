@@ -55,7 +55,7 @@ def load_best_prompt(run_dir: Path) -> str:
     accepted = [record for record in records if record.get("status") == "accepted" and "new_prompt" in record]
     if not accepted:
         raise ValueError("No accepted prompt text found. Enable opted-in prompt logging before running this analysis.")
-    best = next((record for record in accepted if record.get("is_best")), accepted[-1])
+    best = max(accepted, key=lambda record: record.get("valset_score", float("-inf")))
     prompt = best["new_prompt"].get("system_prompt")
     if not isinstance(prompt, str):
         raise ValueError("The best proposal does not contain a system_prompt component")

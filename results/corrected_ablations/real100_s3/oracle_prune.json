@@ -1,0 +1,10 @@
+{
+  "run": "real100_s3",
+  "condition": "real100",
+  "base_acc": 0.66,
+  "n_rules": 57,
+  "n_dropped": 23,
+  "oracle_acc": 0.59,
+  "oracle_gain": -0.07000000000000006,
+  "sum_neg_estimate": 0.5399999999999996
+}
